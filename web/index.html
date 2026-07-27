@@ -13,7 +13,7 @@
       <nav id="nav">
         <button class="nav-item active" data-page="overview"><i>⌂</i><span>Обзор</span></button>
         <p class="nav-label">РАБОЧАЯ СРЕДА</p>
-        <button class="nav-item" data-page="agents"><i>◈</i><span>ИИ-агенты</span><em>3</em></button>
+        <button class="nav-item" data-page="agents"><i>◈</i><span>ИИ-агенты</span><em id="agent-count">0</em></button>
         <button class="nav-item" data-page="models"><i>◇</i><span>Модели</span></button>
         <button class="nav-item" data-page="trained"><i>◆</i><span>Дообученные</span></button>
         <button class="nav-item" data-page="training"><i>↗</i><span>Обучение</span><small></small></button>
@@ -35,12 +35,12 @@
           <div><span class="eyebrow">FENIKS WORKSPACE</span><h2>Создавайте интеллект,<br><span>который действует.</span></h2><p>Обучайте модели, собирайте автономных агентов и наблюдайте за каждым решением.</p><button class="primary" data-goto="agents">Открыть агентов →</button></div>
           <div class="orb"><div class="orb-core"></div><span class="orbit one"></span><span class="orbit two"></span></div>
         </div>
-        <div class="section-heading"><div><h2>Состояние системы</h2><p>Всё важное — без лишнего шума</p></div><span class="online">● Все системы работают</span></div>
+        <div class="section-heading"><div><h2>Состояние пространства</h2><p>Актуальные данные из локального хранилища</p></div><span class="online">● Локальная база подключена</span></div>
         <div class="stats">
-          <article><span class="stat-icon purple">◈</span><div><b>3</b><p>Активных агента</p></div><small>+1 за неделю</small></article>
-          <article><span class="stat-icon blue">↗</span><div><b>1</b><p>Обучение запущено</p></div><small>68% завершено</small></article>
-          <article><span class="stat-icon cyan">◎</span><div><b>12.4 ч</b><p>Автономной работы</p></div><small>За последние 7 дней</small></article>
-          <article><span class="stat-icon green">✓</span><div><b>94.2%</b><p>Успешных задач</p></div><small>+3.8% к прошлой неделе</small></article>
+          <article><span class="stat-icon purple">◈</span><div><b id="stat-agents">0</b><p>ИИ-агентов</p></div><small>Сохранено локально</small></article>
+          <article><span class="stat-icon blue">▤</span><div><b id="stat-chats">0</b><p>Рабочих чатов</p></div><small>Независимые вселенные</small></article>
+          <article><span class="stat-icon cyan">☷</span><div><b id="stat-events">0</b><p>Событий</p></div><small>Структурированный журнал</small></article>
+          <article><span class="stat-icon green">✓</span><div><b>SQLite</b><p>Хранилище</p></div><small>Автосохранение включено</small></article>
         </div>
         <div class="dashboard-grid">
           <section class="panel"><div class="panel-title"><div><h3>Ваши агенты</h3><p>Недавняя активность</p></div><button class="link" data-goto="agents">Все агенты →</button></div><div id="agent-preview"></div></section>
@@ -48,14 +48,16 @@
         </div>
       </section>
       <section id="agents" class="page">
-        <div class="toolbar"><div class="search">⌕ <input placeholder="Поиск только по агентам…"></div><div class="tabs"><button class="active">Все</button><button>Игровые</button><button>Помощники</button></div></div>
-        <div class="agent-layout"><div class="agent-catalog" id="agent-catalog"></div><div class="chat-panel"><div id="chat-empty" class="empty"><span>◈</span><h3>Выберите агента</h3><p>Откройте его рабочее пространство, чтобы общаться и ставить задачи.</p></div><div id="chat" hidden><div class="chat-head"><div><h3 id="chat-name"></h3><p><span class="online-dot"></span> Готов к задаче</p></div><select id="mode"><option value="observer">Наблюдатель</option><option value="advisor">Советник</option><option value="assistant">Помощник</option><option value="autonomous">Автономный</option></select></div><div id="messages"></div><form id="composer"><textarea placeholder="Поставьте задачу или задайте вопрос…" rows="2"></textarea><button class="primary">Отправить ↑</button></form></div></div></div>
+        <div class="toolbar"><div class="search">⌕ <input id="agent-search" placeholder="Поиск только по агентам…"></div><div class="tabs"><button class="active">Все</button><button>Игровые</button><button>Помощники</button></div></div>
+        <div class="agent-layout"><div class="agent-catalog"><div id="agent-catalog"></div></div><div class="chat-panel"><div id="chat-empty" class="empty"><span>◈</span><h3>Создайте или выберите агента</h3><p>У каждого агента — собственные независимые чаты и настройки.</p></div><div id="chat" hidden><div class="chat-head"><div><h3 id="chat-name"></h3><p id="chat-status"><span class="online-dot"></span> Данные сохраняются автоматически</p></div><div class="chat-actions"><button class="secondary" id="new-chat">＋ Новый чат</button><select id="chat-select"></select><select id="mode"><option value="observer">Наблюдатель</option><option value="advisor">Советник</option><option value="assistant">Помощник</option><option value="autonomous">Автономный</option></select><button class="danger-icon" id="delete-chat" title="Удалить чат">×</button></div></div><div id="messages"></div><form id="composer"><textarea placeholder="Напишите сообщение…" rows="2"></textarea><button class="primary">Сохранить ↑</button></form></div></div></div>
       </section>
       <section id="logs" class="page"><div class="toolbar"><div class="search">⌕ <input id="log-search" placeholder="Поиск только по журналу…"></div><select id="log-level"><option value="">Все уровни</option><option>INFO</option><option>WARNING</option><option>ERROR</option><option>SECURITY</option></select></div><div class="panel log-panel"><div class="log-header"><span>ВРЕМЯ</span><span>УРОВЕНЬ</span><span>КАТЕГОРИЯ / СОБЫТИЕ</span><span>СООБЩЕНИЕ</span></div><div id="log-list"></div></div></section>
       <section id="placeholder" class="page"><div class="empty large"><span id="placeholder-icon">◇</span><h2 id="placeholder-title">Раздел готов к подключению</h2><p>Модульная основа создана. Здесь появятся адаптеры, настройки и рабочие данные.</p><button class="primary" data-goto="overview">Вернуться к обзору</button></div></section>
     </main>
   </div>
   <div id="toast"></div>
+  <dialog id="agent-dialog"><form id="agent-form"><div class="dialog-head"><div><h2>Новый ИИ-агент</h2><p>Создайте чистое рабочее пространство без демонстрационных данных.</p></div><button type="button" data-close="agent-dialog" class="dialog-close">×</button></div><label>Название<input name="name" maxlength="80" required placeholder="Например, Stellaris Advisor"></label><label>Назначение<textarea name="description" rows="3" placeholder="Что должен делать агент?"></textarea></label><div class="form-grid"><label>Категория<select name="category"><option value="assistant">Помощник</option><option value="game">Игровой агент</option><option value="desktop">Управление ПК</option><option value="research">Исследование</option><option value="custom">Другое</option></select></label><label>Начальный режим<select name="mode"><option value="observer">Наблюдатель</option><option value="advisor">Советник</option><option value="assistant">Помощник</option><option value="autonomous">Автономный</option></select></label></div><div class="dialog-buttons"><button type="button" data-close="agent-dialog" class="secondary">Отмена</button><button class="primary" id="create-agent">Создать агента</button></div></form></dialog>
+  <dialog id="chat-dialog"><form id="chat-form"><div class="dialog-head"><div><h2>Новый чат-вселенная</h2><p>История нового чата по умолчанию полностью независима.</p></div><button type="button" data-close="chat-dialog" class="dialog-close">×</button></div><label>Название<input name="title" maxlength="100" required value="Новый чат"></label><label>Контекст<select name="inherit_mode"><option value="clean">Чистый контекст</option><option value="copy">Скопировать текущую историю</option></select></label><div class="dialog-buttons"><button type="button" data-close="chat-dialog" class="secondary">Отмена</button><button class="primary" id="create-chat">Создать чат</button></div></form></dialog>
   <script src="app.js"></script>
 </body>
 </html>
