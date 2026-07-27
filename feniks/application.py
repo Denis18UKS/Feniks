@@ -40,7 +40,6 @@ class FeniksApplication:
             min_size=(1080, 680),
             background_color="#0b1020",
         )
-        self.api.attach_window(window)
         webview.start(debug=os.getenv("FENIKS_DEBUG") == "1")
 
 
