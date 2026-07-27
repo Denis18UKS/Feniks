@@ -51,6 +51,12 @@ class Storage:
                 CREATE TABLE IF NOT EXISTS settings (
                     key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS resources (
+                    id TEXT PRIMARY KEY, kind TEXT NOT NULL, name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '', config TEXT NOT NULL DEFAULT '{}',
+                    status TEXT NOT NULL DEFAULT 'ready', created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
             self._ensure_column("agents", "description", "TEXT NOT NULL DEFAULT ''")
@@ -122,6 +128,10 @@ class Storage:
             "SELECT id,role,content,status,created_at FROM messages WHERE chat_id=? ORDER BY id", (chat_id,))
         return [dict(row) for row in rows]
 
+    def chat_belongs_to(self, chat_id: str, agent_id: str) -> bool:
+        return self.connection.execute(
+            "SELECT 1 FROM chats WHERE id=? AND agent_id=?", (chat_id, agent_id)).fetchone() is not None
+
     def add_message(self, chat_id: str, agent_id: str, role: str, content: str,
                     status: str = "saved") -> dict[str, Any]:
         item = {"chat_id": chat_id, "agent_id": agent_id, "role": role, "content": content.strip(),
@@ -163,6 +173,34 @@ class Storage:
                 "INSERT INTO settings(key,value,updated_at) VALUES(?,?,?) "
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at",
                 (key, json.dumps(value, ensure_ascii=False), self.now()))
+
+    def resources(self, kind: str | None = None) -> list[dict[str, Any]]:
+        query = "SELECT * FROM resources" + (" WHERE kind=?" if kind else "") + " ORDER BY updated_at DESC"
+        rows = self.connection.execute(query, (kind,) if kind else ())
+        result = []
+        for row in rows:
+            item = dict(row)
+            item["config"] = json.loads(item["config"])
+            result.append(item)
+        return result
+
+    def create_resource(self, kind: str, name: str, description: str,
+                        config: dict[str, Any]) -> dict[str, Any]:
+        now = self.now()
+        item = {"id": str(uuid.uuid4()), "kind": kind, "name": name.strip(),
+                "description": description.strip(), "config": config, "status": "ready",
+                "created_at": now, "updated_at": now}
+        with self.lock, self.connection:
+            self.connection.execute(
+                "INSERT INTO resources(id,kind,name,description,config,status,created_at,updated_at) "
+                "VALUES(?,?,?,?,?,?,?,?)", (item["id"], kind, item["name"], item["description"],
+                json.dumps(config, ensure_ascii=False), "ready", now, now))
+        return item
+
+    def delete_resource(self, resource_id: str) -> bool:
+        with self.lock, self.connection:
+            cursor = self.connection.execute("DELETE FROM resources WHERE id=?", (resource_id,))
+        return cursor.rowcount > 0
 
     @staticmethod
     def now() -> str:

@@ -9,6 +9,7 @@ from .models import ModelError, chat_completion
 
 MODES = {"observer", "advisor", "assistant", "autonomous"}
 CATEGORIES = {"assistant", "game", "desktop", "research", "custom"}
+RESOURCE_KINDS = {"model", "trained", "dataset", "training", "vision", "voice", "session"}
 
 
 class DesktopApi:
@@ -19,7 +20,25 @@ class DesktopApi:
 
     def bootstrap(self) -> dict[str, Any]:
         return {"agents": self._storage.agents(), "logs": self._storage.logs(),
-                "settings": self._storage.settings(), "version": "0.3.0"}
+                "settings": self._storage.settings(), "resources": self._storage.resources(),
+                "version": "0.4.0"}
+
+    def create_resource(self, data: dict[str, Any]) -> dict[str, Any]:
+        kind, name = str(data.get("kind", "")), str(data.get("name", "")).strip()
+        if kind not in RESOURCE_KINDS:
+            return {"ok": False, "error": "Неизвестный раздел"}
+        if not name or len(name) > 120:
+            return {"ok": False, "error": "Название должно содержать от 1 до 120 символов"}
+        config = data.get("config", {})
+        if not isinstance(config, dict):
+            return {"ok": False, "error": "Конфигурация должна быть объектом"}
+        item = self._storage.create_resource(kind, name, str(data.get("description", "")), config)
+        log = self._storage.add_log("INFO", f"{kind}.lifecycle", "resource_created",
+                                    f"Создано: {name}", payload={"resource_id": item["id"]})
+        return {"ok": True, "resource": item, "log": log}
+
+    def delete_resource(self, resource_id: str) -> dict[str, Any]:
+        return {"ok": self._storage.delete_resource(resource_id)}
 
     def create_agent(self, data: dict[str, Any]) -> dict[str, Any]:
         name = str(data.get("name", "")).strip()
@@ -65,6 +84,8 @@ class DesktopApi:
         content = str(content).strip()
         if not content or len(content) > 20_000:
             return {"ok": False, "error": "Сообщение должно содержать от 1 до 20 000 символов"}
+        if not self._storage.chat_belongs_to(chat_id, agent_id):
+            return {"ok": False, "error": "Чат не принадлежит выбранному агенту"}
         message = self._storage.add_message(chat_id, agent_id, "user", content, "saved")
         log = self._storage.add_log("INFO", "chat.message", "message_saved", "Сообщение сохранено",
                                    agent_id, {"chat_id": chat_id, "message_id": message["id"]})

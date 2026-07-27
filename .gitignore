@@ -5,3 +5,5 @@ build/
 dist/
 *.db
 feniks/bin/
+
+artifacts/

@@ -61,6 +61,17 @@ class ApplicationDataTests(unittest.TestCase):
         self.assertFalse(self.api.set_agent_mode("missing", "unlimited")["ok"])
         self.assertFalse(self.api.save_setting("api_secret", "value")["ok"])
 
+    def test_resources_survive_restart_and_keep_their_kind(self):
+        self.assertTrue(self.api.create_resource(
+            {"kind": "model", "name": "Local model", "config": {"path": "model.gguf"}})["ok"])
+        self.assertTrue(self.api.create_resource(
+            {"kind": "dataset", "name": "Examples", "config": {}})["ok"])
+        self.assertEqual(self.storage.resources("model")[0]["name"], "Local model")
+        self.storage.connection.close()
+        self.storage = Storage(self.path)
+        self.api = DesktopApi(self.storage)
+        self.assertEqual(len(self.api.bootstrap()["resources"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
