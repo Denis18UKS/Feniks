@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feniks AI Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">F</div><div><b>Feniks</b><span>AI Studio</span></div></div>
+      <nav id="nav">
+        <button class="nav-item active" data-page="overview"><i>⌂</i><span>Обзор</span></button>
+        <p class="nav-label">РАБОЧАЯ СРЕДА</p>
+        <button class="nav-item" data-page="agents"><i>◈</i><span>ИИ-агенты</span><em id="agent-count">0</em></button>
+        <button class="nav-item" data-page="models"><i>◇</i><span>Модели</span></button>
+        <button class="nav-item" data-page="trained"><i>◆</i><span>Дообученные</span></button>
+        <button class="nav-item" data-page="training"><i>↗</i><span>Обучение</span><small></small></button>
+        <p class="nav-label">ИНСТРУМЕНТЫ</p>
+        <button class="nav-item" data-page="vision"><i>◎</i><span>Машинное зрение</span></button>
+        <button class="nav-item" data-page="voice"><i>≋</i><span>Голос</span></button>
+        <button class="nav-item" data-page="sessions"><i>▣</i><span>Игровые сессии</span></button>
+        <button class="nav-item" data-page="logs"><i>☷</i><span>Журнал событий</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" id="model-settings"><i>⚙</i><span>Подключение модели</span></button>
+        <button class="nav-item" id="theme"><i>◐</i><span>Сменить тему</span></button>
+        <div class="profile"><div class="avatar">АК</div><div><b>Локальный профиль</b><span>Все данные на устройстве</span></div></div>
+      </div>
+    </aside>
+    <main>
+      <header><div><h1 id="page-title">Добрый вечер</h1><p id="page-subtitle">Управляйте агентами, моделями и обучением в одном месте.</p></div><div class="header-actions"><button class="icon-btn">?</button><button class="primary" id="new-agent">＋ Новый агент</button></div></header>
+      <section id="overview" class="page active">
+        <div class="hero">
+          <div><span class="eyebrow">FENIKS WORKSPACE</span><h2>Создавайте интеллект,<br><span>который действует.</span></h2><p>Обучайте модели, собирайте автономных агентов и наблюдайте за каждым решением.</p><button class="primary" data-goto="agents">Открыть агентов →</button></div>
+          <div class="orb"><div class="orb-core"></div><span class="orbit one"></span><span class="orbit two"></span></div>
+        </div>
+        <div class="section-heading"><div><h2>Состояние пространства</h2><p>Актуальные данные из локального хранилища</p></div><span class="online">● Локальная база подключена</span></div>
+        <div class="stats">
+          <article><span class="stat-icon purple">◈</span><div><b id="stat-agents">0</b><p>ИИ-агентов</p></div><small>Сохранено локально</small></article>
+          <article><span class="stat-icon blue">▤</span><div><b id="stat-chats">0</b><p>Рабочих чатов</p></div><small>Независимые вселенные</small></article>
+          <article><span class="stat-icon cyan">☷</span><div><b id="stat-events">0</b><p>Событий</p></div><small>Структурированный журнал</small></article>
+          <article><span class="stat-icon green">✓</span><div><b>SQLite</b><p>Хранилище</p></div><small>Автосохранение включено</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <section class="panel"><div class="panel-title"><div><h3>Ваши агенты</h3><p>Недавняя активность</p></div><button class="link" data-goto="agents">Все агенты →</button></div><div id="agent-preview"></div></section>
+          <section class="panel activity"><div class="panel-title"><div><h3>Последние события</h3><p>Структурированный журнал</p></div><button class="icon-btn" id="refresh">↻</button></div><div id="activity-list"></div><button class="wide-button" data-goto="logs">Открыть полный журнал</button></section>
+        </div>
+      </section>
+      <section id="agents" class="page">
+        <div class="toolbar"><div class="search">⌕ <input id="agent-search" placeholder="Поиск только по агентам…"></div><div class="tabs"><button class="active">Все</button><button>Игровые</button><button>Помощники</button></div></div>
+        <div class="agent-layout"><div class="agent-catalog"><div id="agent-catalog"></div></div><div class="chat-panel"><div id="chat-empty" class="empty"><span>◈</span><h3>Создайте или выберите агента</h3><p>У каждого агента — собственные независимые чаты и настройки.</p></div><div id="chat" hidden><div class="chat-head"><div><h3 id="chat-name"></h3><p id="chat-status"><span class="online-dot"></span> Данные сохраняются автоматически</p></div><div class="chat-actions"><button class="secondary" id="new-chat">＋ Новый чат</button><select id="chat-select"></select><select id="mode"><option value="observer">Наблюдатель</option><option value="advisor">Советник</option><option value="assistant">Помощник</option><option value="autonomous">Автономный</option></select><button class="danger-icon" id="delete-chat" title="Удалить чат">×</button></div></div><div id="messages"></div><form id="composer"><textarea placeholder="Напишите сообщение…" rows="2"></textarea><button class="primary">Сохранить ↑</button></form></div></div></div>
+      </section>
+      <section id="logs" class="page"><div class="toolbar"><div class="search">⌕ <input id="log-search" placeholder="Поиск только по журналу…"></div><select id="log-level"><option value="">Все уровни</option><option>INFO</option><option>WARNING</option><option>ERROR</option><option>SECURITY</option></select></div><div class="panel log-panel"><div class="log-header"><span>ВРЕМЯ</span><span>УРОВЕНЬ</span><span>КАТЕГОРИЯ / СОБЫТИЕ</span><span>СООБЩЕНИЕ</span></div><div id="log-list"></div></div></section>
+      <section id="placeholder" class="page"><div class="empty large"><span id="placeholder-icon">◇</span><h2 id="placeholder-title">Раздел в разработке</h2><p>Этот модуль пока не реализован. Интерфейс не выдаёт макеты за работающие функции.</p><button class="primary" data-goto="overview">Вернуться к обзору</button></div></section>
+    </main>
+  </div>
+  <div id="toast"></div>
+  <dialog id="agent-dialog"><form id="agent-form"><div class="dialog-head"><div><h2>Новый ИИ-агент</h2><p>Создайте чистое рабочее пространство без демонстрационных данных.</p></div><button type="button" data-close="agent-dialog" class="dialog-close">×</button></div><label>Название<input name="name" maxlength="80" required placeholder="Например, Stellaris Advisor"></label><label>Назначение<textarea name="description" rows="3" placeholder="Что должен делать агент?"></textarea></label><div class="form-grid"><label>Категория<select name="category"><option value="assistant">Помощник</option><option value="game">Игровой агент</option><option value="desktop">Управление ПК</option><option value="research">Исследование</option><option value="custom">Другое</option></select></label><label>Начальный режим<select name="mode"><option value="observer">Наблюдатель</option><option value="advisor">Советник</option><option value="assistant">Помощник</option><option value="autonomous">Автономный</option></select></label></div><div class="dialog-buttons"><button type="button" data-close="agent-dialog" class="secondary">Отмена</button><button class="primary" id="create-agent">Создать агента</button></div></form></dialog>
+  <dialog id="chat-dialog"><form id="chat-form"><div class="dialog-head"><div><h2>Новый чат-вселенная</h2><p>История нового чата по умолчанию полностью независима.</p></div><button type="button" data-close="chat-dialog" class="dialog-close">×</button></div><label>Название<input name="title" maxlength="100" required value="Новый чат"></label><label>Контекст<select name="inherit_mode"><option value="clean">Чистый контекст</option><option value="copy">Скопировать текущую историю</option></select></label><div class="dialog-buttons"><button type="button" data-close="chat-dialog" class="secondary">Отмена</button><button class="primary" id="create-chat">Создать чат</button></div></form></dialog>
+
+  <dialog id="settings-dialog"><form id="settings-form"><div class="dialog-head"><div><h2>Подключение модели</h2><p>Поддерживаются локальный Ollama и OpenAI-совместимые серверы.</p></div><button type="button" data-close="settings-dialog" class="dialog-close">×</button></div><label>Провайдер<select name="model_provider"><option value="disabled">Не подключён</option><option value="ollama">Ollama</option><option value="openai_compatible">OpenAI-совместимый API</option></select></label><label>Базовый URL<input name="model_base_url" placeholder="http://localhost:11434"></label><label>Модель<input name="model_name" placeholder="qwen3:8b"></label><label>API-ключ<input name="model_api_key" type="password" autocomplete="off" placeholder="Не нужен для Ollama"></label><div class="dialog-buttons"><button type="button" data-close="settings-dialog" class="secondary">Отмена</button><button class="primary">Сохранить</button></div></form></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
